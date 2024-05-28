@@ -98,6 +98,20 @@ public class GenerateMap : MonoBehaviour
         }
         return count;
     }
+    // 테두리를 살아있는 셀로 바꾸는 메서드
+    private void SetBordersDead(bool[,] map)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            map[x, 0] = true;
+            map[x, height - 1] = true;
+        }
+        for (int y = 0; y < height; y++)
+        {
+            map[0, y] = true;
+            map[width - 1, y] = true;
+        }
+    }
 
     // 맵을 생성하는 메서드
     public bool[,] CreateMap()
@@ -109,6 +123,7 @@ public class GenerateMap : MonoBehaviour
         {
             cellmap = DoSimulationStep(cellmap);
         }
+        SetBordersDead(cellmap); // 테두리를 죽은 셀로 설정
         return cellmap;
     }
 }
