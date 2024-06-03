@@ -12,7 +12,7 @@ public class GenerateMap : MonoBehaviour
     int starvationLimit = 2;
     int overpopLimit = 3;
     int birthLimit = 3;
-    int numberOfSteps = 2;
+    int numberOfSteps = 3;
 
     // 초기 맵 설정 메서드
     public bool[,] InitialiseMap(bool[,] map)
