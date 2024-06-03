@@ -12,10 +12,12 @@ public class CharacterMovement : MonoBehaviour
     private Vector3Int targetTilePosition; // 목표 타일 위치
     private Vector3Int[] path; // 이동 경로
     private int currentPathIndex = 0; // 현재 경로 인덱스
+    private float characterZ; // 캐릭터의 Z 좌표
 
     private void Start()
     {
         targetTilePosition = tilemap.WorldToCell(transform.position); // 현재 위치를 타일 좌표로 변환하여 초기화
+        characterZ = transform.position.z; // 캐릭터의 현재 Z 좌표를 저장
     }
 
     private void Update()
@@ -40,10 +42,12 @@ public class CharacterMovement : MonoBehaviour
         {
             // 다음 타일 위치로 이동
             Vector3 targetWorldPosition = tilemap.GetCellCenterWorld(path[currentPathIndex]);
-            transform.position = Vector3.MoveTowards(transform.position, targetWorldPosition, moveSpeed * Time.deltaTime);
+            // 이동할 때 Z 좌표를 유지
+            Vector3 targetPosition = new Vector3(targetWorldPosition.x, targetWorldPosition.y, characterZ);
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
             // 다음 타일에 도착했으면 다음 경로 인덱스로 이동
-            if (transform.position == targetWorldPosition)
+            if (transform.position == targetPosition)
             {
                 currentPathIndex++;
             }
@@ -151,7 +155,7 @@ public class CharacterMovement : MonoBehaviour
 
         // 유효한 이웃만 반환
         neighbors.RemoveAll(neighbor => !tilemap.HasTile(neighbor));
-        
+
         return neighbors;
     }
 

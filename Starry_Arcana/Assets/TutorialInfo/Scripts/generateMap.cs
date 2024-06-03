@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GenerateMap : MonoBehaviour
 {
-    int width = 60;
-    int height = 60;
+    int width = 70; // 60 + 테두리 10
+    int height = 70; // 60 + 테두리 10
     public bool[,] cellmap;
 
     float chanceToStartAlive = 0.45f;
@@ -70,7 +70,7 @@ public class GenerateMap : MonoBehaviour
     }
 
     // 살아있는 이웃 셀 수를 계산하는 메서드
-    public int CountAliveNeighbours(bool[,] map, int x, int y) // 접근자를 public으로 변경
+    public int CountAliveNeighbours(bool[,] map, int x, int y)
     {
         int count = 0;
         for (int i = -1; i < 2; i++)
@@ -99,17 +99,17 @@ public class GenerateMap : MonoBehaviour
         return count;
     }
     // 테두리를 살아있는 셀로 바꾸는 메서드
-    private void SetBordersDead(bool[,] map)
+    private void SetBordersAlive(bool[,] map)
     {
         for (int x = 0; x < width; x++)
         {
-            map[x, 0] = true;
-            map[x, height - 1] = true;
-        }
-        for (int y = 0; y < height; y++)
-        {
-            map[0, y] = true;
-            map[width - 1, y] = true;
+            for (int y = 0; y < height; y++)
+            {
+                if (x < 5 || y < 5 || x >= width - 5 || y >= height - 5)
+                {
+                    map[x, y] = true; // 가장 바깥 셀 5줄을 살아있는 셀로 설정
+                }
+            }
         }
     }
 
@@ -123,7 +123,7 @@ public class GenerateMap : MonoBehaviour
         {
             cellmap = DoSimulationStep(cellmap);
         }
-        SetBordersDead(cellmap); // 테두리를 죽은 셀로 설정
+        SetBordersAlive(cellmap); // 테두리를 살아있는 셀로 설정
         return cellmap;
     }
 }

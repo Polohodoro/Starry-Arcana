@@ -8,14 +8,17 @@ public class TileMapGenerator : MonoBehaviour
     public Tilemap tilemap; // 타일맵 참조
     public TileBase floorTile; // 바닥 타일
     public TileBase wallTile; // 벽 타일
-    public GameObject character; // 캐릭터 프리팹
+    public GameObject character; // 캐릭터
 
     // generateMap 스크립트에 접근하기 위한 참조
     public GenerateMap mapGenerator;
+    // TreasurePlacer 스크립트에 접근하기 위한 참조
+    public TreasurePlacer treasurePlacer;
 
     void Start()
     {
         GenerateTilemap();
+        treasurePlacer.PlaceTreasures(4); // 보물 4개 배치
         MoveCharacter();
     }
 
@@ -25,13 +28,12 @@ public class TileMapGenerator : MonoBehaviour
         bool[,] map = mapGenerator.CreateMap();
 
         // 생성된 맵을 기반으로 타일맵에 타일 배치
-        for (int x = -5; x < map.GetLength(0) + 5; x++)
+        for (int x = 0; x < map.GetLength(0); x++)
         {
-            for (int y = -5; y < map.GetLength(1) + 5; y++)
+            for (int y = 0; y < map.GetLength(1); y++)
             {
-                bool isBorderTile = x < 0 || y < 0 || x >= map.GetLength(0) || y >= map.GetLength(1);
-
-                if (isBorderTile || (x >= 0 && y >= 0 && x < map.GetLength(0) && y < map.GetLength(1) && map[x, y]))
+                // 맵의 값이 참(true)인 경우 타일을 배치
+                if (map[x, y])
                 {
                     // 타일맵 좌표에 타일 배치
                     tilemap.SetTile(new Vector3Int(x, y, 0), wallTile);
@@ -80,7 +82,8 @@ public class TileMapGenerator : MonoBehaviour
         if (potentialPositions.Count > 0)
         {
             Vector3Int chosenPosition = potentialPositions[Random.Range(0, potentialPositions.Count)];
-            character.transform.position = tilemap.CellToWorld(chosenPosition) + tilemap.cellSize / 2; // 타일의 중심으로 이동
+            Vector3 worldPosition = tilemap.CellToWorld(chosenPosition) + new Vector3(tilemap.cellSize.x / 2, tilemap.cellSize.y / 2, 0);
+            character.transform.position = new Vector3(worldPosition.x, worldPosition.y, -1.0f); // 타일의 중심으로 이동
         }
     }
 
