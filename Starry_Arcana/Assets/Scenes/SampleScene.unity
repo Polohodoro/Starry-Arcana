@@ -606,6 +606,8 @@ GameObject:
   - component: {fileID: 1306323021}
   - component: {fileID: 1306323020}
   - component: {fileID: 1306323019}
+  - component: {fileID: 1306323023}
+  - component: {fileID: 1306323022}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -630,6 +632,8 @@ MonoBehaviour:
   wallTile: {fileID: 11400000, guid: 6c0e5844bd89f024eb050b7c2ef10582, type: 2}
   character: {fileID: 431098595}
   mapGenerator: {fileID: 1306323020}
+  treasurePlacer: {fileID: 1306323023}
+  stairPlacer: {fileID: 1306323022}
 --- !u!114 &1306323020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -657,6 +661,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1306323022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1306323018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f41ace41f8b79724d853ab08a0a3d6ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 774888371}
+  floorTile: {fileID: 11400000, guid: adf5b0025df65ef4f9262cc980c0cc84, type: 2}
+  wallTile: {fileID: 11400000, guid: 6c0e5844bd89f024eb050b7c2ef10582, type: 2}
+  stair: {fileID: 1784225390}
+--- !u!114 &1306323023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1306323018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8072b0e0ab8dd24cacdb637754a56cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  treasurePrefab: {fileID: 422465912}
+  mapGenerator: {fileID: 1306323020}
 --- !u!1 &1336834005
 GameObject:
   m_ObjectHideFlags: 0
