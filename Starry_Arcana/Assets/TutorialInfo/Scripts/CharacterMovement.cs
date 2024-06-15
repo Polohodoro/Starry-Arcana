@@ -8,6 +8,12 @@ public class CharacterMovement : MonoBehaviour
     public float moveSpeed = 5f; // 캐릭터 이동 속도 (타일 당 초당 이동 거리)
     public Tilemap tilemap; // 타일맵 참조
     public TileBase wallTile; // 벽 타일
+<<<<<<< Updated upstream
+=======
+    public TileBase fogTile; // 암흑 타일
+    public TileMapGenerator tileMapGenerator; // TileMapGenerator 참조
+    public float pauseDuration = 0.5f; // 타일 이동 후 멈추는 시간
+>>>>>>> Stashed changes
 
     private Vector3Int targetTilePosition; // 목표 타일 위치
     private Vector3Int[] path; // 이동 경로
@@ -34,7 +40,17 @@ public class CharacterMovement : MonoBehaviour
 
             // 새로운 경로 계산
             path = CalculatePath(targetTilePosition);
+<<<<<<< Updated upstream
             currentPathIndex = 0;
+=======
+
+            // 경로가 유효하고 암흑 타일이 없을 때 이동 시작
+            if (path.Length > 0 && !PathHasFogTile(path))
+            {
+                currentPathIndex = 0;
+                StartCoroutine(MoveAlongPath());
+            }
+>>>>>>> Stashed changes
         }
 
         // 경로가 설정되었으면 이동
@@ -52,6 +68,19 @@ public class CharacterMovement : MonoBehaviour
                 currentPathIndex++;
             }
         }
+    }
+
+    // 경로에 암흑 타일이 있는지 확인하는 메서드
+    private bool PathHasFogTile(Vector3Int[] path)
+    {
+        foreach (Vector3Int tilePosition in path)
+        {
+            if (fogTilemap.GetTile(tilePosition) == fogTile)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     // A* 알고리즘을 사용하여 최단 경로 계산
@@ -96,7 +125,7 @@ public class CharacterMovement : MonoBehaviour
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
                 // 벽 타일인 경우 이웃에서 제외
-                if (tilemap.GetTile(neighbor) == wallTile)
+                if (tilemap.GetTile(neighbor) == wallTile || fogTilemap.GetTile(neighbor) == fogTile)
                 {
                     continue;
                 }
