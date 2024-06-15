@@ -14,12 +14,15 @@ public class TileMapGenerator : MonoBehaviour
     public GenerateMap mapGenerator;
     // TreasurePlacer 스크립트에 접근하기 위한 참조
     public TreasurePlacer treasurePlacer;
+    // StairPlacer 스크립트에 접근하기 위한 참조
+    public StairPlacer stairPlacer;
 
     void Start()
     {
         GenerateTilemap();
         treasurePlacer.PlaceTreasures(4); // 보물 4개 배치
         MoveCharacter();
+        stairPlacer.PlaceStairsInCenter(); // 계단 배치
     }
 
     void GenerateTilemap()
