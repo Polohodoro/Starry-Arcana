@@ -5,28 +5,28 @@ using UnityEngine.Tilemaps;
 
 public class TileMapGenerator : MonoBehaviour
 {
-    public Tilemap tilemap; // 타일맵 참조
+    public Tilemap tilemap; // 기본 타일맵
+    public Tilemap fogTilemap; // 암흑 타일맵
     public TileBase floorTile; // 바닥 타일
     public TileBase wallTile; // 벽 타일
+    public TileBase fogTile; // 암흑 타일 (검은색 타일)
     public GameObject character; // 캐릭터
 
     // generateMap 스크립트에 접근하기 위한 참조
     public GenerateMap mapGenerator;
     // TreasurePlacer 스크립트에 접근하기 위한 참조
     public TreasurePlacer treasurePlacer;
+    // StairPlacer 스크립트에 접근하기 위한 참조
     public StairPlacer stairPlacer;
 
     void Start()
     {
         GenerateTilemap();
+        GenerateFogOfWar();
         treasurePlacer.PlaceTreasures(4); // 보물 4개 배치
         MoveCharacter();
-<<<<<<< Updated upstream
-=======
         stairPlacer.PlaceStairsInCenter(); // 계단 배치
         UpdateFogOfWar();
-
->>>>>>> Stashed changes
     }
 
     void GenerateTilemap()
@@ -49,6 +49,23 @@ public class TileMapGenerator : MonoBehaviour
                 {
                     // 타일맵 좌표에 타일 배치
                     tilemap.SetTile(new Vector3Int(x, y, 0), floorTile);
+                }
+            }
+        }
+    }
+    void GenerateFogOfWar()
+    {
+        // 타일맵 전체에 암흑 타일 배치
+        for (int x = tilemap.cellBounds.xMin; x < tilemap.cellBounds.xMax; x++)
+        {
+            for (int y = tilemap.cellBounds.yMin; y < tilemap.cellBounds.yMax; y++)
+            {
+                Vector3Int tilePosition = new Vector3Int(x, y, 0);
+                if (tilemap.HasTile(tilePosition))
+                {
+                    fogTilemap.SetTile(tilePosition, fogTile);
+                    fogTilemap.SetTileFlags(tilePosition, TileFlags.None); // 타일 플래그 초기화
+                    fogTilemap.SetColor(tilePosition, Color.black); // 타일 색상 검은색으로 설정
                 }
             }
         }
@@ -93,7 +110,27 @@ public class TileMapGenerator : MonoBehaviour
             character.transform.position = new Vector3(worldPosition.x, worldPosition.y, -1.0f); // 타일의 중심으로 이동
         }
     }
+    public void UpdateFogOfWar()
+    {
+        Vector3Int characterPosition = tilemap.WorldToCell(character.transform.position);
+        int revealRadius = 3; // 시야 반경
 
+        // 시야 범위 내 타일의 암흑 타일 제거
+        for (int x = -revealRadius; x <= revealRadius; x++)
+        {
+            for (int y = -revealRadius; y <= revealRadius; y++)
+            {
+                if (Mathf.Abs(x) + Mathf.Abs(y) <= revealRadius) // 마름모 형태의 범위
+                {
+                    Vector3Int tilePosition = new Vector3Int(characterPosition.x + x, characterPosition.y + y, 0);
+                    if (fogTilemap.HasTile(tilePosition))
+                    {
+                        fogTilemap.SetTile(tilePosition, null);
+                    }
+                }
+            }
+        }
+    }
     int CountFloorNeighbours(bool[,] map, int x, int y)
     {
         int count = 0;
