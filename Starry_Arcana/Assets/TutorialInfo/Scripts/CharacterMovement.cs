@@ -7,12 +7,16 @@ public class CharacterMovement : MonoBehaviour
 {
     public float moveSpeed = 5f; // 캐릭터 이동 속도 (타일 당 초당 이동 거리)
     public Tilemap tilemap; // 타일맵 참조
+    public Tilemap fogTilemap; // 암흑 타일맵 참조
     public TileBase wallTile; // 벽 타일
+    public TileMapGenerator tileMapGenerator; // TileMapGenerator 참조
+    public float pauseDuration = 0.5f; // 타일 이동 후 멈추는 시간
 
     private Vector3Int targetTilePosition; // 목표 타일 위치
     private Vector3Int[] path; // 이동 경로
     private int currentPathIndex = 0; // 현재 경로 인덱스
     private float characterZ; // 캐릭터의 Z 좌표
+    private bool isMoving = false; // 이동 중인지 여부
 
     private void Start()
     {
@@ -23,35 +27,59 @@ public class CharacterMovement : MonoBehaviour
     private void Update()
     {
         // 마우스 왼쪽 버튼이 눌렸는지 확인
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !isMoving)
         {
             // 마우스 클릭 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
             Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3Int clickedTilePosition = tilemap.WorldToCell(mouseWorldPosition);
 
-            // 클릭된 타일 위치로 이동 목표 설정
-            targetTilePosition = clickedTilePosition;
+            // 클릭된 타일이 암흑 타일이 아닌지 확인
+            if (!fogTilemap.HasTile(clickedTilePosition))
+            {
+                // 클릭된 타일 위치로 이동 목표 설정
+                targetTilePosition = clickedTilePosition;
 
-            // 새로운 경로 계산
-            path = CalculatePath(targetTilePosition);
-            currentPathIndex = 0;
+                // 새로운 경로 계산
+                path = CalculatePath(targetTilePosition);
+                currentPathIndex = 0;
+
+                // 이동 시작
+                if (path.Length > 0)
+                {
+                    StartCoroutine(MoveAlongPath());
+                }
+            }
         }
+    }
 
-        // 경로가 설정되었으면 이동
-        if (path != null && path.Length > 0 && currentPathIndex < path.Length)
+    private IEnumerator MoveAlongPath()
+    {
+        isMoving = true;
+
+        while (currentPathIndex < path.Length)
         {
             // 다음 타일 위치로 이동
             Vector3 targetWorldPosition = tilemap.GetCellCenterWorld(path[currentPathIndex]);
             // 이동할 때 Z 좌표를 유지
             Vector3 targetPosition = new Vector3(targetWorldPosition.x, targetWorldPosition.y, characterZ);
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            while (transform.position != targetPosition)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+                yield return null;
+            }
 
             // 다음 타일에 도착했으면 다음 경로 인덱스로 이동
-            if (transform.position == targetPosition)
+            currentPathIndex++;
+            tileMapGenerator.UpdateFogOfWar(); // 캐릭터 위치 기준으로 시야 갱신
+
+            // 한 타일 이동 후 잠깐 멈춤
+            if (currentPathIndex < path.Length)
             {
-                currentPathIndex++;
+                yield return new WaitForSeconds(pauseDuration);
             }
         }
+
+        isMoving = false;
     }
 
     // A* 알고리즘을 사용하여 최단 경로 계산
