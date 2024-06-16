@@ -7,12 +7,18 @@ public class CharacterMovement : MonoBehaviour
 {
     public float moveSpeed = 5f; // 캐릭터 이동 속도 (타일 당 초당 이동 거리)
     public Tilemap tilemap; // 타일맵 참조
+    public Tilemap fogTilemap; // 암흑 타일맵 참조
     public TileBase wallTile; // 벽 타일
+    public TileBase fogTile; // 암흑 타일
+    public TileMapGenerator tileMapGenerator; // TileMapGenerator 참조
+    public BoxUIController boxUIController; // BoxUIController 참조
+    public float pauseDuration = 0.5f; // 타일 이동 후 멈추는 시간
 
     private Vector3Int targetTilePosition; // 목표 타일 위치
     private Vector3Int[] path; // 이동 경로
     private int currentPathIndex = 0; // 현재 경로 인덱스
     private float characterZ; // 캐릭터의 Z 좌표
+    private bool isMoving = false; // 이동 중인지 여부
 
     private void Start()
     {
@@ -23,7 +29,7 @@ public class CharacterMovement : MonoBehaviour
     private void Update()
     {
         // 마우스 왼쪽 버튼이 눌렸는지 확인
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !isMoving)
         {
             // 마우스 클릭 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
             Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -34,24 +40,74 @@ public class CharacterMovement : MonoBehaviour
 
             // 새로운 경로 계산
             path = CalculatePath(targetTilePosition);
-            currentPathIndex = 0;
-        }
 
-        // 경로가 설정되었으면 이동
-        if (path != null && path.Length > 0 && currentPathIndex < path.Length)
+            // 경로가 유효하고 암흑 타일이 없을 때 이동 시작
+            if (path != null && path.Length > 0 && !PathHasFogTile(path))
+            {
+                currentPathIndex = 0;
+                StartCoroutine(MoveAlongPath());
+            }
+
+            // 클릭된 위치에 상자가 있는지 확인
+            CheckForBox(mouseWorldPosition);
+        }
+    }
+
+    private IEnumerator MoveAlongPath()
+    {
+        isMoving = true;
+
+        while (currentPathIndex < path.Length)
         {
             // 다음 타일 위치로 이동
             Vector3 targetWorldPosition = tilemap.GetCellCenterWorld(path[currentPathIndex]);
             // 이동할 때 Z 좌표를 유지
             Vector3 targetPosition = new Vector3(targetWorldPosition.x, targetWorldPosition.y, characterZ);
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            while (transform.position != targetPosition)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+                yield return null;
+            }
 
             // 다음 타일에 도착했으면 다음 경로 인덱스로 이동
-            if (transform.position == targetPosition)
+            currentPathIndex++;
+            tileMapGenerator.UpdateFogOfWar(); // 캐릭터 위치 기준으로 시야 갱신
+
+            // 한 타일 이동 후 잠깐 멈춤
+            if (currentPathIndex < path.Length)
             {
-                currentPathIndex++;
+                yield return new WaitForSeconds(pauseDuration);
             }
         }
+
+        isMoving = false;
+    }
+
+    private void CheckForBox(Vector3 worldPosition)
+    {
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldPosition);
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.CompareTag("Box"))
+            {
+                // 상자가 있는 경우 UI 표시
+                boxUIController.ShowBoxUI();
+                break;
+            }
+        }
+    }
+
+    // 경로에 암흑 타일이 있는지 확인하는 메서드
+    private bool PathHasFogTile(Vector3Int[] path)
+    {
+        foreach (Vector3Int tilePosition in path)
+        {
+            if (fogTilemap.GetTile(tilePosition) == fogTile)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     // A* 알고리즘을 사용하여 최단 경로 계산
@@ -64,6 +120,12 @@ public class CharacterMovement : MonoBehaviour
 
         // 시작점을 포함하여 경로를 반환
         path.Insert(0, startPosition);
+
+        // 경로가 유효한지 확인
+        if (PathHasFogTile(path.ToArray()))
+        {
+            return null; // 경로에 암흑 타일이 있는 경우 null 반환
+        }
 
         // List를 배열로 변환하여 반환
         return path.ToArray();
@@ -95,8 +157,8 @@ public class CharacterMovement : MonoBehaviour
 
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
-                // 벽 타일인 경우 이웃에서 제외
-                if (tilemap.GetTile(neighbor) == wallTile)
+                // 벽 타일이나 암흑 타일인 경우 이웃에서 제외
+                if (tilemap.GetTile(neighbor) == wallTile || fogTilemap.GetTile(neighbor) == fogTile)
                 {
                     continue;
                 }
