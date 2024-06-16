@@ -11,7 +11,8 @@ public class TreasurePlacer : MonoBehaviour
     public void PlaceTreasures(int numberOfTreasures)
     {
         bool[,] map = mapGenerator.cellmap;
-        int treasureHiddenLimit = 5;
+        int minTreasureHiddenLimit = 5;
+        int maxTreasureHiddenLimit = 6;
 
         List<Vector3Int> possibleLocations = new List<Vector3Int>();
 
@@ -22,7 +23,7 @@ public class TreasurePlacer : MonoBehaviour
                 if (!map[x, y])
                 {
                     int nbs = mapGenerator.CountAliveNeighbours(map, x, y);
-                    if (nbs >= treasureHiddenLimit)
+                    if (nbs >= minTreasureHiddenLimit && nbs <= maxTreasureHiddenLimit)
                     {
                         possibleLocations.Add(new Vector3Int(x, y, 0));
                     }

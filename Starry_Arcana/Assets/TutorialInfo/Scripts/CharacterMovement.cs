@@ -11,6 +11,8 @@ public class CharacterMovement : MonoBehaviour
     public TileBase wallTile; // 벽 타일
     public TileBase fogTile; // 암흑 타일
     public TileMapGenerator tileMapGenerator; // TileMapGenerator 참조
+    public BoxUIController boxUIController; // BoxUIController 참조
+    public DoorUIController doorUIController; // DoorUIController 참조
     public float pauseDuration = 0.5f; // 타일 이동 후 멈추는 시간
 
     private Vector3Int targetTilePosition; // 목표 타일 위치
@@ -27,12 +29,19 @@ public class CharacterMovement : MonoBehaviour
 
     private void Update()
     {
-        // 마우스 왼쪽 버튼이 눌렸는지 확인
-        if (Input.GetMouseButtonDown(0) && !isMoving)
+        // UI가 활성화된 상태인지 확인
+        if (boxUIController.boxUIPanel.activeSelf || doorUIController.doorUIPanel.activeSelf)
         {
-            // 마우스 클릭 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
-            Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int clickedTilePosition = tilemap.WorldToCell(mouseWorldPosition);
+            return; // UI가 활성화된 경우 이동하지 않음
+        }
+
+        // 마우스 클릭 또는 터치 입력 확인
+        if ((Input.GetMouseButtonDown(0) || IsTouchInput()) && !isMoving)
+        {
+            Vector3 inputPosition = Input.GetMouseButtonDown(0) ? Input.mousePosition : (Vector3)Input.GetTouch(0).position;
+            // 입력 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
+            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(inputPosition);
+            Vector3Int clickedTilePosition = tilemap.WorldToCell(worldPosition);
 
             // 클릭된 타일 위치로 이동 목표 설정
             targetTilePosition = clickedTilePosition;
@@ -41,12 +50,27 @@ public class CharacterMovement : MonoBehaviour
             path = CalculatePath(targetTilePosition);
 
             // 경로가 유효하고 암흑 타일이 없을 때 이동 시작
-            if (path.Length > 0 && !PathHasFogTile(path))
+            if (path != null && path.Length > 0 && !PathHasFogTile(path))
+
             {
                 currentPathIndex = 0;
                 StartCoroutine(MoveAlongPath());
             }
         }
+    }
+
+
+    private bool IsTouchInput()
+    {
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private IEnumerator MoveAlongPath()
@@ -77,7 +101,30 @@ public class CharacterMovement : MonoBehaviour
         }
 
         isMoving = false;
+
+        // 이동이 완료된 후 상자 또는 문 확인
+        CheckForInteractable(transform.position);
     }
+
+    private void CheckForInteractable(Vector3 worldPosition)
+{
+    Collider2D[] colliders = Physics2D.OverlapPointAll(worldPosition);
+    foreach (Collider2D collider in colliders)
+    {
+        if (collider.CompareTag("Box"))
+        {
+            // 상자가 있는 경우 UI 표시
+            boxUIController.ShowBoxUI(collider.gameObject);
+            return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
+        }
+        else if (collider.CompareTag("Door"))
+        {
+            // 문이 있는 경우 UI 표시
+            doorUIController.ShowDoorUI(collider.gameObject);
+            return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
+        }
+    }
+}
 
     // 경로에 암흑 타일이 있는지 확인하는 메서드
     private bool PathHasFogTile(Vector3Int[] path)
@@ -102,6 +149,12 @@ public class CharacterMovement : MonoBehaviour
 
         // 시작점을 포함하여 경로를 반환
         path.Insert(0, startPosition);
+
+        // 경로가 유효한지 확인
+        if (PathHasFogTile(path.ToArray()))
+        {
+            return null; // 경로에 암흑 타일이 있는 경우 null 반환
+        }
 
         // List를 배열로 변환하여 반환
         return path.ToArray();
@@ -133,7 +186,7 @@ public class CharacterMovement : MonoBehaviour
 
             foreach (Vector3Int neighbor in GetNeighbors(current))
             {
-                // 벽 타일인 경우 이웃에서 제외
+                // 벽 타일이나 암흑 타일인 경우 이웃에서 제외
                 if (tilemap.GetTile(neighbor) == wallTile || fogTilemap.GetTile(neighbor) == fogTile)
                 {
                     continue;

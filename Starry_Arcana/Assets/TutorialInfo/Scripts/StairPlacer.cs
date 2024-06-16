@@ -21,7 +21,8 @@ public class StairPlacer : MonoBehaviour
 
                 if (x == 0 && y == 0)
                 {
-                    // 중심 위치에 계단 오브젝트 배치
+                    // 중심 위치에 바닥 타일 배치 후 계단 오브젝트 배치
+                    tilemap.SetTile(position, floorTile);
                     Vector3 worldPosition = tilemap.CellToWorld(position) + tilemap.cellSize / 2;
                     Instantiate(stair, worldPosition, Quaternion.identity);
                 }
@@ -38,6 +39,7 @@ public class StairPlacer : MonoBehaviour
             }
         }
     }
+
     public void PlaceStairsInCenter()
     {
         // 중심 위치로 사용할 타일맵의 중간 위치를 계산
