@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.EventSystems;
 
 public class CharacterMovement : MonoBehaviour
 {
@@ -13,6 +12,7 @@ public class CharacterMovement : MonoBehaviour
     public TileBase fogTile; // 암흑 타일
     public TileMapGenerator tileMapGenerator; // TileMapGenerator 참조
     public BoxUIController boxUIController; // BoxUIController 참조
+    public DoorUIController doorUIController; // DoorUIController 참조
     public float pauseDuration = 0.5f; // 타일 이동 후 멈추는 시간
 
     private Vector3Int targetTilePosition; // 목표 타일 위치
@@ -30,7 +30,7 @@ public class CharacterMovement : MonoBehaviour
     private void Update()
     {
         // UI가 활성화된 상태인지 확인
-        if (boxUIController.boxUIPanel.activeSelf)
+        if (boxUIController.boxUIPanel.activeSelf || doorUIController.doorUIPanel.activeSelf)
         {
             return; // UI가 활성화된 경우 이동하지 않음
         }
@@ -51,12 +51,14 @@ public class CharacterMovement : MonoBehaviour
 
             // 경로가 유효하고 암흑 타일이 없을 때 이동 시작
             if (path != null && path.Length > 0 && !PathHasFogTile(path))
+
             {
                 currentPathIndex = 0;
                 StartCoroutine(MoveAlongPath());
             }
         }
     }
+
 
     private bool IsTouchInput()
     {
@@ -70,7 +72,6 @@ public class CharacterMovement : MonoBehaviour
         }
         return false;
     }
-
     private IEnumerator MoveAlongPath()
     {
         isMoving = true;
@@ -100,23 +101,29 @@ public class CharacterMovement : MonoBehaviour
 
         isMoving = false;
 
-        // 이동이 완료된 후 상자 확인
-        CheckForBox(transform.position);
+        // 이동이 완료된 후 상자 또는 문 확인
+        CheckForInteractable(transform.position);
     }
 
-    private void CheckForBox(Vector3 worldPosition)
+    private void CheckForInteractable(Vector3 worldPosition)
+{
+    Collider2D[] colliders = Physics2D.OverlapPointAll(worldPosition);
+    foreach (Collider2D collider in colliders)
     {
-        Collider2D[] colliders = Physics2D.OverlapPointAll(worldPosition);
-        foreach (Collider2D collider in colliders)
+        if (collider.CompareTag("Box"))
         {
-            if (collider.CompareTag("Box"))
-            {
-                // 상자가 있는 경우 UI 표시
-                boxUIController.ShowBoxUI(collider.gameObject);
-                break;
-            }
+            // 상자가 있는 경우 UI 표시
+            boxUIController.ShowBoxUI(collider.gameObject);
+            return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
+        }
+        else if (collider.CompareTag("Door"))
+        {
+            // 문이 있는 경우 UI 표시
+            doorUIController.ShowDoorUI(collider.gameObject);
+            return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
         }
     }
+}
 
     // 경로에 암흑 타일이 있는지 확인하는 메서드
     private bool PathHasFogTile(Vector3Int[] path)

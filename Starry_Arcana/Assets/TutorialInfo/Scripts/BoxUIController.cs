@@ -69,6 +69,6 @@ public class BoxUIController : MonoBehaviour
     private void UpdateKeyCount()
     {
         int currentKeys = GameManager.instance.GetKeys();
-        keyCountText.text = "Keys: " + currentKeys;
+        keyCountText.text = "Keys: " + currentKeys + " / 4";
     }
 }

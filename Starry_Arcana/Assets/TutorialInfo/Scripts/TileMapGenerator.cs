@@ -30,6 +30,7 @@ public class TileMapGenerator : MonoBehaviour
         MoveCharacter();
         stairPlacer.PlaceStairsInCenter(); // 계단 배치
         UpdateFogOfWar(); // 초기 캐릭터 위치에서 시야 갱신
+
     }
 
     void GenerateTilemap()
@@ -135,7 +136,6 @@ public class TileMapGenerator : MonoBehaviour
             }
         }
     }
-
     int CountFloorNeighbours(bool[,] map, int x, int y)
     {
         int count = 0;
