@@ -544,7 +544,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   boxUIPanel: {fileID: 651227262}
   cancelButton: {fileID: 1822448190}
-  OKButton: {fileID: 1663757417}
+  okButton: {fileID: 1663757417}
 --- !u!1 &774888368
 GameObject:
   m_ObjectHideFlags: 0
@@ -888,6 +888,7 @@ GameObject:
   - component: {fileID: 1306323019}
   - component: {fileID: 1306323023}
   - component: {fileID: 1306323022}
+  - component: {fileID: 1306323024}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -917,6 +918,7 @@ MonoBehaviour:
   treasurePlacer: {fileID: 1306323023}
   stairPlacer: {fileID: 1306323022}
   fogRange: 10
+  revealRadius: 3
 --- !u!114 &1306323020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -974,6 +976,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   treasurePrefab: {fileID: 422465912}
   mapGenerator: {fileID: 1306323020}
+--- !u!114 &1306323024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1306323018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1241878c9373b0a4cbcba25ce3b2a194, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1314714493
 GameObject:
   m_ObjectHideFlags: 0
@@ -1798,19 +1812,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1663757418}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 651227266}
-        m_TargetAssemblyTypeName: BoxUIController, Assembly-CSharp
-        m_MethodName: ShowBoxUI
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1663757418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2083,19 +2085,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1822448191}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 651227266}
-        m_TargetAssemblyTypeName: BoxUIController, Assembly-CSharp
-        m_MethodName: HideBoxUI
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1822448191
 MonoBehaviour:
   m_ObjectHideFlags: 0

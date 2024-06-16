@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 public class CharacterMovement : MonoBehaviour
 {
@@ -28,6 +29,12 @@ public class CharacterMovement : MonoBehaviour
 
     private void Update()
     {
+        // UI가 활성화된 상태인지 확인
+        if (boxUIController.boxUIPanel.activeSelf)
+        {
+            return; // UI가 활성화된 경우 이동하지 않음
+        }
+
         // 마우스 왼쪽 버튼이 눌렸는지 확인
         if (Input.GetMouseButtonDown(0) && !isMoving)
         {
@@ -47,9 +54,6 @@ public class CharacterMovement : MonoBehaviour
                 currentPathIndex = 0;
                 StartCoroutine(MoveAlongPath());
             }
-
-            // 클릭된 위치에 상자가 있는지 확인
-            CheckForBox(mouseWorldPosition);
         }
     }
 
@@ -81,6 +85,9 @@ public class CharacterMovement : MonoBehaviour
         }
 
         isMoving = false;
+
+        // 이동이 완료된 후 상자 확인
+        CheckForBox(transform.position);
     }
 
     private void CheckForBox(Vector3 worldPosition)
@@ -91,7 +98,7 @@ public class CharacterMovement : MonoBehaviour
             if (collider.CompareTag("Box"))
             {
                 // 상자가 있는 경우 UI 표시
-                boxUIController.ShowBoxUI();
+                boxUIController.ShowBoxUI(collider.gameObject);
                 break;
             }
         }
