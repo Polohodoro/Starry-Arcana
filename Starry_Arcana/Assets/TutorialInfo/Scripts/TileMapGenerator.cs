@@ -121,11 +121,6 @@ public class TileMapGenerator : MonoBehaviour
     public void UpdateFogOfWar()
     {
         Vector3Int characterPosition = tilemap.WorldToCell(character.transform.position);
-        int revealRadius = 3; // 시야 반경
-
-    public void UpdateFogOfWar()
-    {
-        Vector3Int characterPosition = tilemap.WorldToCell(character.transform.position);
         // 시야 범위 내 타일의 암흑 타일 제거
         for (int x = -revealRadius; x <= revealRadius; x++)
         {
