@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
 
     public void AddKey()
     {
-        keys += 1;
+        keys++;
         Debug.Log("Total keys: " + keys);
     }
 

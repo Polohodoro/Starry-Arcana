@@ -35,12 +35,13 @@ public class CharacterMovement : MonoBehaviour
             return; // UI가 활성화된 경우 이동하지 않음
         }
 
-        // 마우스 왼쪽 버튼이 눌렸는지 확인
-        if (Input.GetMouseButtonDown(0) && !isMoving)
+        // 마우스 클릭 또는 터치 입력 확인
+        if ((Input.GetMouseButtonDown(0) || IsTouchInput()) && !isMoving)
         {
-            // 마우스 클릭 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
-            Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3Int clickedTilePosition = tilemap.WorldToCell(mouseWorldPosition);
+            Vector3 inputPosition = Input.GetMouseButtonDown(0) ? Input.mousePosition : (Vector3)Input.GetTouch(0).position;
+            // 입력 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
+            Vector3 worldPosition = Camera.main.ScreenToWorldPoint(inputPosition);
+            Vector3Int clickedTilePosition = tilemap.WorldToCell(worldPosition);
 
             // 클릭된 타일 위치로 이동 목표 설정
             targetTilePosition = clickedTilePosition;
@@ -55,6 +56,19 @@ public class CharacterMovement : MonoBehaviour
                 StartCoroutine(MoveAlongPath());
             }
         }
+    }
+
+    private bool IsTouchInput()
+    {
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private IEnumerator MoveAlongPath()

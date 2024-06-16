@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; // TextMeshPro 네임스페이스 추가
 
 public class BoxUIController : MonoBehaviour
 {
     public GameObject boxUIPanel; // 상자 UI 패널
     public Button cancelButton; // 취소 버튼
     public Button okButton; // OK 버튼
+    public TextMeshProUGUI keyCountText; // 열쇠 개수를 표시할 TextMeshPro UI 요소
     private GameObject currentBox; // 현재 상자 오브젝트 참조
     private bool isProcessing = false; // 중복 호출 방지 플래그
 
@@ -30,6 +32,9 @@ public class BoxUIController : MonoBehaviour
         Debug.Log("Current Box: " + currentBox.name);
         boxUIPanel.SetActive(true); // 상자 UI 표시
         isProcessing = false; // 초기화
+
+        // 열쇠 개수 업데이트
+        UpdateKeyCount();
     }
 
     public void HideBoxUI()
@@ -59,5 +64,11 @@ public class BoxUIController : MonoBehaviour
         Destroy(currentBox);
         // UI 닫기
         HideBoxUI();
+    }
+
+    private void UpdateKeyCount()
+    {
+        int currentKeys = GameManager.instance.GetKeys();
+        keyCountText.text = "Keys: " + currentKeys;
     }
 }

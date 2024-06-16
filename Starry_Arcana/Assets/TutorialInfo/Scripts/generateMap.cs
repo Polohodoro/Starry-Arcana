@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GenerateMap : MonoBehaviour
 {
-    int width = 70; // 60 + 테두리 10
-    int height = 70; // 60 + 테두리 10
+    int width = 50; // 40 + 테두리 10
+    int height = 50; // 40 + 테두리 10
     public bool[,] cellmap;
 
     float chanceToStartAlive = 0.45f;
