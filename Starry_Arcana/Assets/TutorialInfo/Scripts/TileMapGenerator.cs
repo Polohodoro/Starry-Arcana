@@ -30,7 +30,6 @@ public class TileMapGenerator : MonoBehaviour
         MoveCharacter();
         stairPlacer.PlaceStairsInCenter(); // 계단 배치
         UpdateFogOfWar(); // 초기 캐릭터 위치에서 시야 갱신
-
     }
 
     void GenerateTilemap()
@@ -57,7 +56,6 @@ public class TileMapGenerator : MonoBehaviour
             }
         }
     }
-
     void GenerateFogOfWar()
     {
         // 기존 타일맵의 범위를 가져옴
@@ -79,7 +77,6 @@ public class TileMapGenerator : MonoBehaviour
             }
         }
     }
-
     void MoveCharacter()
     {
         bool[,] map = mapGenerator.cellmap;
@@ -121,11 +118,14 @@ public class TileMapGenerator : MonoBehaviour
             UpdateFogOfWar(); // 캐릭터 위치 기준으로 시야 갱신
         }
     }
+    public void UpdateFogOfWar()
+    {
+        Vector3Int characterPosition = tilemap.WorldToCell(character.transform.position);
+        int revealRadius = 3; // 시야 반경
 
     public void UpdateFogOfWar()
     {
         Vector3Int characterPosition = tilemap.WorldToCell(character.transform.position);
-
         // 시야 범위 내 타일의 암흑 타일 제거
         for (int x = -revealRadius; x <= revealRadius; x++)
         {

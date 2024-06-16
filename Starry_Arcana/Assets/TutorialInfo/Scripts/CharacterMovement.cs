@@ -72,6 +72,7 @@ public class CharacterMovement : MonoBehaviour
         }
         return false;
     }
+
     private IEnumerator MoveAlongPath()
     {
         isMoving = true;
