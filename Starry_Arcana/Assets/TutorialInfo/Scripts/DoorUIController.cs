@@ -92,7 +92,7 @@ public class DoorUIController : MonoBehaviour
         }
 
         // 타이틀 씬으로 전환
-        SceneManager.LoadScene("TitleScene"); // 타이틀 씬의 이름을 "TitleScene"으로 가정
+        SceneManager.LoadScene("TitleScene");
     }
 
     private void UpdateKeyCount()
