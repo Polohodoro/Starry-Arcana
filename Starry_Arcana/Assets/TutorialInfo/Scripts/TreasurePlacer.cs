@@ -11,8 +11,7 @@ public class TreasurePlacer : MonoBehaviour
     public void PlaceTreasures(int numberOfTreasures)
     {
         bool[,] map = mapGenerator.cellmap;
-        int minTreasureHiddenLimit = 5;
-        int maxTreasureHiddenLimit = 6;
+        int treasureHiddenLimit = 5;
 
         List<Vector3Int> possibleLocations = new List<Vector3Int>();
 
@@ -23,7 +22,7 @@ public class TreasurePlacer : MonoBehaviour
                 if (!map[x, y])
                 {
                     int nbs = mapGenerator.CountAliveNeighbours(map, x, y);
-                    if (nbs >= minTreasureHiddenLimit && nbs <= maxTreasureHiddenLimit)
+                    if (nbs >= treasureHiddenLimit)
                     {
                         possibleLocations.Add(new Vector3Int(x, y, 0));
                     }
@@ -43,7 +42,7 @@ public class TreasurePlacer : MonoBehaviour
     void PlaceTreasureObject(int x, int y)
     {
         // 보물 프리팹을 지정된 위치에 인스턴스화
-        Vector3 position = new Vector3(x + 0.5f, y + 0.5f, 0);
+        Vector3 position = new Vector3(x + 0.5f, y + 0.5f, 1f); // Z 좌표를 1로 설정하여 상자가 암흑 타일 뒤에 배치되도록 함
         Instantiate(treasurePrefab, position, Quaternion.identity);
     }
 }

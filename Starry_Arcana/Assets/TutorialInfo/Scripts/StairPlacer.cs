@@ -24,7 +24,7 @@ public class StairPlacer : MonoBehaviour
                     // 중심 위치에 바닥 타일 배치 후 계단 오브젝트 배치
                     tilemap.SetTile(position, floorTile);
                     Vector3 worldPosition = tilemap.CellToWorld(position) + tilemap.cellSize / 2;
-                    Instantiate(stair, worldPosition, Quaternion.identity);
+                    Instantiate(stair, new Vector3(worldPosition.x, worldPosition.y, 1f), Quaternion.identity); // Z 좌표를 1로 설정하여 계단이 암흑 타일 뒤에 배치되도록 함
                 }
                 else if ((x == -1 && y == -1) || (x == 0 && y == -1) || (x == 1 && y == -1))
                 {
