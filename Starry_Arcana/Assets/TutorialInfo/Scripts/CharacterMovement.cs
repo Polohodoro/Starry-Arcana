@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class CharacterMovement : MonoBehaviour
 {
@@ -13,6 +15,7 @@ public class CharacterMovement : MonoBehaviour
     public TileMapGenerator tileMapGenerator; // TileMapGenerator 참조
     public BoxUIController boxUIController; // BoxUIController 참조
     public DoorUIController doorUIController; // DoorUIController 참조
+    public GameMenuController gameMenuController; // GameMenuController 참조
     public float pauseDuration = 0.5f; // 타일 이동 후 멈추는 시간
 
     private Vector3Int targetTilePosition; // 목표 타일 위치
@@ -25,19 +28,48 @@ public class CharacterMovement : MonoBehaviour
     {
         targetTilePosition = tilemap.WorldToCell(transform.position); // 현재 위치를 타일 좌표로 변환하여 초기화
         characterZ = transform.position.z; // 캐릭터의 현재 Z 좌표를 저장
+
+        // boxUIController 및 doorUIController가 null인지 확인
+        if (boxUIController == null)
+        {
+            Debug.LogError("BoxUIController is not assigned in the inspector.");
+        }
+
+        if (doorUIController == null)
+        {
+            Debug.LogError("DoorUIController is not assigned in the inspector.");
+        }
     }
 
     private void Update()
     {
-        // UI가 활성화된 상태인지 확인
-        if (boxUIController.boxUIPanel.activeSelf || doorUIController.doorUIPanel.activeSelf)
+        // boxUIController 및 doorUIController가 null인지 확인
+        if (boxUIController == null || doorUIController == null)
         {
-            return; // UI가 활성화된 경우 이동하지 않음
+            return; // 필드가 할당되지 않은 경우 Update를 실행하지 않음
+        }
+
+        // GameMenuPanel이 활성화된 상태인지 확인
+        if (gameMenuController.gameMenuPanel.activeSelf)
+        {
+            return; // 게임 메뉴 패널이 활성화된 경우 이동하지 않음
+        }
+
+        // UI가 활성화된 상태인지 확인 (MenuBackground는 무시)
+        if ((boxUIController.boxUIPanel.activeSelf || doorUIController.doorUIPanel.activeSelf) && !gameMenuController.menuBackground.gameObject.activeSelf)
+        {
+            return; // 다른 UI가 활성화된 경우 이동하지 않음
         }
 
         // 마우스 클릭 또는 터치 입력 확인
         if ((Input.GetMouseButtonDown(0) || IsTouchInput()) && !isMoving)
         {
+            // 클릭한 위치가 UI 요소 위인지 확인
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+                return; // UI 요소 위를 클릭한 경우 이동하지 않음
+            }
+
             Vector3 inputPosition = Input.GetMouseButtonDown(0) ? Input.mousePosition : (Vector3)Input.GetTouch(0).position;
             // 입력 위치를 월드 좌표로 변환하여 타일맵의 타일 위치로 가져옴
             Vector3 worldPosition = Camera.main.ScreenToWorldPoint(inputPosition);
@@ -51,14 +83,12 @@ public class CharacterMovement : MonoBehaviour
 
             // 경로가 유효하고 암흑 타일이 없을 때 이동 시작
             if (path != null && path.Length > 0 && !PathHasFogTile(path))
-
             {
                 currentPathIndex = 0;
                 StartCoroutine(MoveAlongPath());
             }
         }
     }
-
 
     private bool IsTouchInput()
     {
@@ -67,6 +97,11 @@ public class CharacterMovement : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Began)
             {
+                // 터치한 위치가 UI 요소 위인지 확인
+                if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    return false; // UI 요소 위를 터치한 경우
+                }
                 return true;
             }
         }
@@ -107,24 +142,24 @@ public class CharacterMovement : MonoBehaviour
     }
 
     private void CheckForInteractable(Vector3 worldPosition)
-{
-    Collider2D[] colliders = Physics2D.OverlapPointAll(worldPosition);
-    foreach (Collider2D collider in colliders)
     {
-        if (collider.CompareTag("Box"))
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldPosition);
+        foreach (Collider2D collider in colliders)
         {
-            // 상자가 있는 경우 UI 표시
-            boxUIController.ShowBoxUI(collider.gameObject);
-            return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
-        }
-        else if (collider.CompareTag("Door"))
-        {
-            // 문이 있는 경우 UI 표시
-            doorUIController.ShowDoorUI(collider.gameObject);
-            return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
+            if (collider.CompareTag("Box"))
+            {
+                // 상자가 있는 경우 UI 표시
+                boxUIController.ShowBoxUI(collider.gameObject);
+                return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
+            }
+            else if (collider.CompareTag("Door"))
+            {
+                // 문이 있는 경우 UI 표시
+                doorUIController.ShowDoorUI(collider.gameObject);
+                return; // UI를 표시하면 더 이상 검사할 필요가 없으므로 리턴
+            }
         }
     }
-}
 
     // 경로에 암흑 타일이 있는지 확인하는 메서드
     private bool PathHasFogTile(Vector3Int[] path)
