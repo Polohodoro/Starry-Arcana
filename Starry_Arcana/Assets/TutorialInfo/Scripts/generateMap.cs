@@ -8,11 +8,11 @@ public class GenerateMap : MonoBehaviour
     int height = 50; // 40 + 테두리 10
     public bool[,] cellmap;
 
-    float chanceToStartAlive = 0.45f;
+    float chanceToStartAlive = 0.55f;
     int starvationLimit = 2;
     int overpopLimit = 3;
     int birthLimit = 3;
-    int numberOfSteps = 3;
+    int numberOfSteps = 4;
 
     // 초기 맵 설정 메서드
     public bool[,] InitialiseMap(bool[,] map)

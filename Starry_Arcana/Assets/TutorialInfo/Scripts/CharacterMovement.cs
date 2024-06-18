@@ -126,7 +126,7 @@ public class CharacterMovement : MonoBehaviour
 
             // 다음 타일에 도착했으면 다음 경로 인덱스로 이동
             currentPathIndex++;
-            tileMapGenerator.UpdateFogOfWar(); // 캐릭터 위치 기준으로 시야 갱신
+            tileMapGenerator.UpdateFog(); // 캐릭터 위치 기준으로 시야 갱신
 
             // 한 타일 이동 후 잠깐 멈춤
             if (currentPathIndex < path.Length)

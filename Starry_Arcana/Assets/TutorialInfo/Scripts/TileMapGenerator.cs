@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+
 public class TileMapGenerator : MonoBehaviour
 {
     public Tilemap tilemap; // 기본 타일맵
@@ -19,17 +20,17 @@ public class TileMapGenerator : MonoBehaviour
     // StairPlacer 스크립트에 접근하기 위한 참조
     public StairPlacer stairPlacer;
 
-    public int fogRange = 10; // 타일맵 외부에 추가할 암흑 범위
+    public int fogRange = 20; // 타일맵 외부에 추가할 암흑 범위
     public int revealRadius = 3; // 시야 반경
 
     void Start()
     {
         GenerateTilemap();
-        GenerateFogOfWar();
+        GenerateFog();
         treasurePlacer.PlaceTreasures(4); // 보물 4개 배치
         MoveCharacter();
         stairPlacer.PlaceStairsInCenter(); // 계단 배치
-        UpdateFogOfWar(); // 초기 캐릭터 위치에서 시야 갱신
+        UpdateFog(); // 초기 캐릭터 위치에서 시야 갱신
     }
 
     void GenerateTilemap()
@@ -57,7 +58,7 @@ public class TileMapGenerator : MonoBehaviour
         }
     }
 
-    void GenerateFogOfWar()
+    public void GenerateFog()
     {
         // 기존 타일맵의 범위를 가져옴
         BoundsInt bounds = tilemap.cellBounds;
@@ -120,11 +121,11 @@ public class TileMapGenerator : MonoBehaviour
             Vector3Int chosenPosition = potentialPositions[Random.Range(0, potentialPositions.Count)];
             Vector3 worldPosition = tilemap.CellToWorld(chosenPosition) + new Vector3(tilemap.cellSize.x / 2, tilemap.cellSize.y / 2, 0);
             character.transform.position = new Vector3(worldPosition.x, worldPosition.y, -1.0f); // 타일의 중심으로 이동
-            UpdateFogOfWar(); // 캐릭터 위치 기준으로 시야 갱신
+            UpdateFog(); // 캐릭터 위치 기준으로 시야 갱신
         }
     }
 
-    public void UpdateFogOfWar()
+    public void UpdateFog()
     {
         Vector3Int characterPosition = tilemap.WorldToCell(character.transform.position);
 

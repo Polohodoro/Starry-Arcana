@@ -13,10 +13,6 @@ public class MainMenu : MonoBehaviour
     {
       Debug.Log("불러오기");
     }
-    public void OnClickOption()
-    {
-      Debug.Log("옵션");
-    }
     public void OnClickQuit()
     {
       Debug.Log("게임 종료");
